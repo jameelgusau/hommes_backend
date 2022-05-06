@@ -1,0 +1,19 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": "5432",
+    "user": "stetis",
+    "password": null,
+    "database": "fusion"
+  },
+  "secret": "haskjdhsoi jsfkhifoksljfwspkfnsok slbjdkhfiosklhgi hiworyhjnfoslwihnvbpwj svjhwivniw80hw0pgh0wirghnv lhbien0iep9gieujtnwlkfbndi",
+  "emailFrom": "no-reply@fusion.com",
+  "smtpOptions": {
+    "host": "smtp.ethereal.email",
+    "port": 587,
+    "auth": {
+      "user": "kenny.parker52@ethereal.email",
+      "pass": "zDJstKggTxcphUTA2t"
+    }
+  }
+}
