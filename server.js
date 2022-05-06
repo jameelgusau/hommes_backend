@@ -9,7 +9,7 @@ const errorHandler = require('./errors')
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
 
 // default options
 // app.use(fileUpload());
@@ -23,8 +23,8 @@ app.use(
 );
 
 // api routes
-app.use("/back", require("./routes/backdoor.routes"));
 app.use("/api", require("./routes"));
+app.use("/back", require("./routes/backdoor.routes"));
 
 app.use(errorHandler);
 
