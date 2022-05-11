@@ -197,7 +197,8 @@ async function getAllReserved() {
       },
     ],
   });
-  return units;
+
+  return units.map((x) => basicDetails(x));
 }
 
 async function getProspects() {
@@ -218,7 +219,7 @@ async function getPayments() {
       ],
     },
   });
-  return payments;
+  return payments.map((x) => paymentDetails(x));
 }
 
 
@@ -426,3 +427,47 @@ cron.schedule("0 1 * * * *", async () => {
       }
     });
 });
+
+
+function basicDetails(x) {
+  const {
+    id, account, property, unit
+  } = x;
+  return {
+    id,
+    name: account.name,
+    email: account.email,
+    phone: account.phone,
+    property: property.name,
+    floor: unit.floorNumber,
+    status: unit.status,
+    dimention: unit.dimension,
+    price: unit.price,
+    unit: unit.name,
+    unitId: unit.id,
+    paymentType: unit.paymentType,
+  };
+}
+
+function paymentDetails(x) {
+  const {
+    id, reservedUnit: { account }, date, unit, amount, status, 
+  } = x;
+  return {
+    id,
+    name: account.name,
+    date,
+    unit,
+    amount,
+    status
+    // phone: account.phone,
+    // property: property.name,
+    // floor: unit.floorNumber,
+    // status: unit.status,
+    // dimention: unit.dimension,
+    // price: unit.price,
+    // unit: unit.name,
+    // unitId: unit.id,
+    // paymentType: unit.paymentType,
+  };
+}

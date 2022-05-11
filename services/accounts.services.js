@@ -348,7 +348,7 @@ async function revokeToken({ token, ipAddress }) {
 function generateJwtToken(account) {
   // create a jwt token containing the account id that expires in 15 minutes
   return jwt.sign({ sub: account.id, id: account.id }, config.secret, {
-    expiresIn: "15m",
+    expiresIn: "150m",
   });
 }
 
