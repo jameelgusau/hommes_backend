@@ -8,6 +8,7 @@ function model(sequelize) {
     name: { type: DataTypes.STRING(100), allowNull: false},
     email: { type: DataTypes.STRING(50), allowNull: false, unique: true },
     phone: { type: DataTypes.STRING(25), required: true, allowNull: false, unique: true},
+    status: { type: DataTypes.STRING(20), allowNull: false }, // types are prospects or Clients,
 
   }; 
  
@@ -17,5 +18,5 @@ function model(sequelize) {
   
   };
 
-  return sequelize.define("propect", attributes, options);
+  return sequelize.define("prospect", attributes, options);
 } 

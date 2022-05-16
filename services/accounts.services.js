@@ -46,6 +46,7 @@ async function registerAdmin(params, origin) {
   const isFirstAccount = (await db.Account.count()) === 0;
   account.role = isFirstAccount ? Role.Admin : Role.Prospect;
 
+
   account.verificationToken = randomTokenString();
 
   // hash password
@@ -53,6 +54,13 @@ async function registerAdmin(params, origin) {
 
   await account.save();
   // send email
+  if(!isFirstAccount){
+    const prospect =  new db.Prospect(params);
+    prospect.status = "Prospect"
+    prospect.accountId = account.id
+    await prospect.save();
+    }
+  
   await sendVerificationEmail(account, origin);
 }
 
@@ -348,7 +356,7 @@ async function revokeToken({ token, ipAddress }) {
 function generateJwtToken(account) {
   // create a jwt token containing the account id that expires in 15 minutes
   return jwt.sign({ sub: account.id, id: account.id }, config.secret, {
-    expiresIn: "150m",
+    expiresIn: "15m",
   });
 }
 

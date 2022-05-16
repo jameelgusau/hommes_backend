@@ -65,6 +65,7 @@ async function addProspect(params) {
   }
   // create account object
   const prospect = new db.Prospect(params);
+  prospect.status = "Prospect"
   // console.log(prospect)
   await prospect.save();
 }
