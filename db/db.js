@@ -38,6 +38,7 @@ async function initialize() {
   db.EmailList = require("../models/emailList.model")(sequelize);
   db.Payments = require("../models/payments.model")(sequelize);
   db.ProfileImage = require("../models/profileImage.model")(sequelize);
+  db.Agent = require("../models/agents.model")(sequelize);
 
     // define relationships
   db.Account.hasMany(db.RefreshToken, { onDelete: "CASCADE" });
@@ -76,15 +77,8 @@ async function initialize() {
   db.ReservedUnit.hasMany(db.Payments, { onDelete: "CASCADE"});
   db.Payments.belongsTo(db.ReservedUnit)
 
+  db.Agent.hasMany(db.ReservedUnit, { onDelete: "CASCADE" });
+  db.ReservedUnit.belongsTo(db.Agent);
   
-  //   try {
-  //     await sequelize.authenticate();
-  //     console.log("Connection has been established successfully.");
-
-  //   } catch (error) {
-  //     console.error("Unable to connect to the database:", error);
-  //   }
-
-  // sync all models with database
   await sequelize.sync();
 }

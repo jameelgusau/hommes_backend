@@ -13,6 +13,9 @@ module.exports = {
   addProperty,
   addUnit,
   getProperty,
+  editAgent,
+  getAgentsList,
+  registerAgent,
   getAllProperty,
   getUnitsByProp,
   getUnit,
@@ -20,7 +23,9 @@ module.exports = {
   getUnitsByFloorProp,
   deleteUnit,
   editUnit,
+  getAgents,
   editProperty,
+  deleteAgent,
   deleteProperty,
   getPropertyImage,
   reservedUnit,
@@ -65,7 +70,7 @@ async function addProspect(params) {
   }
   // create account object
   const prospect = new db.Prospect(params);
-  prospect.status = "Prospect"
+  prospect.status = "Prospect";
   // console.log(prospect)
   await prospect.save();
 }
@@ -207,6 +212,18 @@ async function getProspects() {
   return prospects;
 }
 
+async function getAgents() {
+  const agents = await db.Agent.findAll();
+  return agents;
+}
+
+async function getAgentsList() {
+  const agents = await db.Agent.findAll(
+    {attributes: { exclude: ["email", "phone", "bank", "accountNumber", "status"] }}
+  );
+  return agents;
+}
+
 async function getPayments() {
   const payments = await db.Payments.findAll({
     attributes: { exclude: ["image"] },
@@ -215,7 +232,24 @@ async function getPayments() {
       include: [
         {
           model: db.Account,
-          attributes:{exclude: ["email", "id", "lastLogin","passwordHash", "passwordReset","phone","resetToken","resetTokenExpires", "role", "updated", "updatedBy","verificationToken", "verified", "created"] },
+          attributes: {
+            exclude: [
+              "email",
+              "id",
+              "lastLogin",
+              "passwordHash",
+              "passwordReset",
+              "phone",
+              "resetToken",
+              "resetTokenExpires",
+              "role",
+              "updated",
+              "updatedBy",
+              "verificationToken",
+              "verified",
+              "created",
+            ],
+          },
         },
       ],
     },
@@ -223,23 +257,37 @@ async function getPayments() {
   return payments.map((x) => paymentDetails(x));
 }
 
-
 async function getPayment(id) {
   const payment = await db.Payments.findOne({
-    where: {id},
+    where: { id },
     include: {
       model: db.ReservedUnit,
       include: [
         {
           model: db.Account,
-          attributes:{exclude: ["id", "lastLogin","passwordHash", "passwordReset","resetToken","resetTokenExpires", "role", "updated", "updatedBy","verificationToken", "verified", "created"] },
+          attributes: {
+            exclude: [
+              "id",
+              "lastLogin",
+              "passwordHash",
+              "passwordReset",
+              "resetToken",
+              "resetTokenExpires",
+              "role",
+              "updated",
+              "updatedBy",
+              "verificationToken",
+              "verified",
+              "created",
+            ],
+          },
         },
         {
           model: db.Unit,
         },
         {
           model: db.Property,
-        }
+        },
       ],
     },
   });
@@ -263,6 +311,11 @@ async function deleteUnit(id) {
   await unit.destroy();
 }
 
+
+async function deleteAgent(id) {
+  const agent = await db.Agent.findByPk(id);
+  await agent.destroy();
+}
 async function deleteProperty(id) {
   const property = await db.Property.findByPk(id);
   await property.destroy();
@@ -301,7 +354,7 @@ async function editUnit(params) {
 }
 
 async function editProperty(params) {
-  console.log(params);
+  // console.log(params);
   const property = await db.Property.findByPk(params.id);
   if (!property) throw "Property not found";
   // validate (if email was changed)
@@ -315,16 +368,37 @@ async function editProperty(params) {
 
   // copy params to account and save
   Object.assign(property, params);
-
   await property.save();
-
   return property;
 }
+
+async function editAgent(params) {
+  // console.log(params);
+  const agent = await db.Agent.findByPk(params.id);
+  if (!agent) throw "Agent not found";
+  // validate (if email was changed)
+  if (
+    params.email &&
+    agent.email !== params.email &&
+    (await db.Agent.findOne({ where: { email: params.email } }))
+  ) {
+    throw "Email already taken";
+  }
+
+  // copy params to account and save
+  Object.assign(agent, params);
+  await agent.save();
+  console.log(params)
+  console.log(agent)
+  return agent;
+}
+
 
 async function getPropertyImage(params) {
   const image = await getPropImage(params);
   return image;
 }
+
 async function getPropImage(params) {
   const image = await db.PropertyImg.findOne({
     where: { propertyId: params.id, floorNumber: params.floor },
@@ -333,8 +407,24 @@ async function getPropImage(params) {
   return image;
 }
 
+async function registerAgent(params) {
+  // validate
+  if (await db.Agent.findOne({ where: { email: params.email } })) {
+    throw "Email already exist";
+  }
+  if (await db.Agent.findOne({ where: { phone: params.phone } })) {
+    throw "Phone number already exist";
+  }
+  // create account object
+  const agent = new db.Agent(params);
+  await agent.save();
+  // send email
+  // await sendAgentEmail(agent, origin);
+}
+
 // add reserved
-async function reservedUnit(params, account) {
+async function reservedUnit(params, account, origin) {
+  console.log(origin, "origin")
   const unit = await db.Unit.findByPk(params.unitId);
   if (unit.status !== "Available") {
     throw "Unit is not available";
@@ -365,12 +455,21 @@ async function reservedUnit(params, account) {
   newUnit.status = "Reserved";
   await unit.save();
   await newUnit.save();
-  await sendReservationRequest(acc, unit, newArr, property);
-  await sendConfirmationRequest(acc, unit, newArr, property);
+
+  await sendReservationRequest(acc, unit, newArr, property, origin);
+  if (newArr) {
+    await sendConfirmationRequest(acc, unit, newArr, property, origin);
+  }
 }
 
 async function deleteReservedUnit(id) {
   const reserved = await db.ReservedUnit.findByPk(id);
+  if(reserved){
+    const unit = await db.Unit.findByPk(reserved.unitId);
+    unit.status = "Available";
+    await unit.save();
+  }
+  
   await reserved.destroy();
 }
 
@@ -390,7 +489,7 @@ async function rejectRequest(id) {
   await sendRejectionLatter(account, unit, property.name);
 }
 
-async function sendOffer(id) {
+async function sendOffer(id, origin) {
   const reservation = await db.ReservedUnit.findByPk(id);
 
   if (!reservation) {
@@ -402,7 +501,7 @@ async function sendOffer(id) {
   reservation.status = "Offered";
   unit.save();
   reservation.save();
-  await sendOfferedLetter(account, unit, property.name);
+  await sendOfferedLetter(account, unit, property.name, origin);
 }
 
 cron.schedule("0 1 * * * *", async () => {
@@ -429,16 +528,14 @@ cron.schedule("0 1 * * * *", async () => {
     });
 });
 
-
 function basicDetails(x) {
-  const {
-    id, account, property, unit
-  } = x;
+  const { id, account, property, unit } = x;
   return {
     id,
     name: account.name,
     email: account.email,
     phone: account.phone,
+    address: account.address,
     property: property.name,
     floor: unit.floorNumber,
     status: unit.status,
@@ -452,7 +549,12 @@ function basicDetails(x) {
 
 function paymentDetails(x) {
   const {
-    id, reservedUnit: { account }, date, unit, amount, status, 
+    id,
+    reservedUnit: { account },
+    date,
+    unit,
+    amount,
+    status,
   } = x;
   return {
     id,
@@ -460,7 +562,7 @@ function paymentDetails(x) {
     date,
     unit,
     amount,
-    status
+    status,
     // phone: account.phone,
     // property: property.name,
     // floor: unit.floorNumber,

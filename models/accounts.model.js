@@ -10,6 +10,7 @@ function model(sequelize) {
     phone: {type: DataTypes.STRING(25), required: true, allowNull: false, unique: true},
     passwordHash: { type: DataTypes.STRING(100), allowNull: false },
     role: { type: DataTypes.STRING(20), allowNull: false },
+    address: { type: DataTypes.STRING(250), allowNull: false},
     verificationToken: { type: DataTypes.STRING(100) },
     verified: { type: DataTypes.DATE },
     resetToken: { type: DataTypes.STRING(100) },

@@ -29,6 +29,20 @@ router.get("/get-payments", authorize(Role.Admin), property.getPayments);
 router.get("/get-units/:id/:floor", authorize(), property.getUnitsByProp);
 router.get("/get-unitsbyfloor/:id/:floor", authorize(), property.getUnitsByFloorProp);
 router.get("/profileImage", authorize(), account.getProfileImage);
+router.get("/agent", authorize(), property.getAgents);
+router.get("/agentList", authorize(), property.getAgentsList);
+router.post(
+  "/agent",
+  authorize(Role.Admin), 
+  property.registerAgentSchema,
+  property.registerAgent
+);
+router.put(
+  "/agent",
+  authorize(Role.Admin), 
+  property.editAgentSchema,
+  property.editAgent
+);
 
 router.post(
   "/profileImage",
@@ -42,8 +56,6 @@ router.post(
   account.registerAdminSchema,
   account.registerAdmin
 );
-
-
 
 router.post(
   "/add-plan",
@@ -137,12 +149,12 @@ router.get("/email-list/:group", authorize(Role.Admin), account.getEmailList);
 router.delete("/email-list/:id", authorize(Role.Admin), account.deleteEmailList);
 router.get("/:id", authorize(Role.Admin), account.getUserById);
 router.delete("/:id", authorize(), account.delete);
+router.delete("/agent/:id", authorize(Role.Admin), property.deleteAgent);
 router.delete("/plan/:id", authorize(Role.Admin), payment.deletePaymentPlan);
 router.delete("/unit/:id", authorize(), property.deleteUnit);
 router.delete("/reserve/:id", authorize(), property.deleteReservedUnit);
 router.delete("/property/:id", authorize(), property.deleteProperty);
 router.delete("/prospect/:id", authorize(Role.Admin), property.deleteProspect);
-// router.delete("/reserved/:id", authorize(), property.de);
 router.post("/refresh-token", authorize(), account.refreshToken);
 router.post(
   "/revoke-token",

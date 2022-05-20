@@ -1,12 +1,12 @@
-const sendEmail = require('../helpers/send-email');
+const sendEmail = require("../helpers/send-email");
 
 module.exports = sendConfirmationRequest;
 
-async function sendConfirmationRequest(account,unit, to, property) {
-    await sendEmail({
-        to: account.email,
-        subject: 'Reservation Request',
-        html:`<html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+async function sendConfirmationRequest(account, unit, to, property, origin) {
+  await sendEmail({
+    to: account.email,
+    subject: "Reservation Request",
+    html: `<html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
 <head>
 <meta name="viewport" content="width=device-width" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -76,7 +76,7 @@ background-color: #f6f6f6;
 								</tr><tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;"><td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
                                   We’re glad to inform you that we’ve received your order to buy Unit number <strong style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">${unit.name}</strong>, <strong style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">${unit.floorNumber}</strong>, located at  <strong style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">${property.name}</strong>, and will process it very soon									</td>
 								</tr><tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;"><td class="content-block" itemprop="handler" itemscope itemtype="http://schema.org/HttpActionHandler" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-										<a href="http://www.mailgun.com" class="btn-primary" itemprop="url" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">Login to Our site</a>
+										<a href=${origin} class="btn-primary" itemprop="url" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">Login to Our site</a>
 									</td>
 								</tr><tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;"><td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
                                         Thank you.
@@ -89,8 +89,8 @@ background-color: #f6f6f6;
 		<td style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0;" valign="top"></td>
 	</tr></table></body>
 </html>
-        `
-        // html: `<h4>Reservation Request</h4>
-        //        <p>${account.name} has requested for an offer for Unit Noxxx , 2nd Floor, fushion plaza Wuse</p>`
-    }).catch(console.error, "sendMail");
+        `,
+    // html: `<h4>Reservation Request</h4>
+    //        <p>${account.name} has requested for an offer for Unit Noxxx , 2nd Floor, fushion plaza Wuse</p>`
+  }).catch(console.error, "sendMail");
 }

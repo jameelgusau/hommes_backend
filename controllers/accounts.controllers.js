@@ -42,6 +42,7 @@ module.exports = {
 function registerAdminSchema(req, res, next) {
   const schema = Joi.object({
     name: Joi.string().required(),
+    address: Joi.string().required(),
     phone: Joi.string().regex(/^\(*\+*[1-9]{0,3}\)*-*[1-9]{0,3}[-. /]*\(*[2-9]\d{2}\)*[-. /]*\d{3}[-. /]*\d{4} *e*x*t*\.* *\d{0,4}$/).messages({'string.pattern.base': `Phone number must have at least 10 digits.`}).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
@@ -49,9 +50,6 @@ function registerAdminSchema(req, res, next) {
   });
   validateRequest(req, next, schema);
 }
-
-
-
 
 function registerAdmin(req, res, next) {
   console.log(req.body, "req");

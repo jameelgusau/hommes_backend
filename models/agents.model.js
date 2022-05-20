@@ -8,9 +8,10 @@ function model(sequelize) {
     name: { type: DataTypes.STRING(100), allowNull: false},
     email: { type: DataTypes.STRING(50), allowNull: false, unique: true },
     phone: { type: DataTypes.STRING(25), required: true, allowNull: false, unique: true},
-    address: { type: DataTypes.STRING(250), allowNull: false},
-    status: { type: DataTypes.STRING(20), allowNull: false }, // types are prospects or Clients,
-
+    bank: { type: DataTypes.STRING(50) },
+    accountNumber: { type: DataTypes.STRING(50), unique: true },
+    status: { type: DataTypes.STRING(20) }, // types are active or inactive,
+  
   }; 
  
   const options = {
@@ -19,5 +20,5 @@ function model(sequelize) {
   
   };
 
-  return sequelize.define("prospect", attributes, options);
+  return sequelize.define("agent", attributes, options);
 } 
