@@ -6,9 +6,10 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const errorHandler = require('./errors')
 
+app.use(cookieParser());
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(cookieParser());
+
 // const fileUpload = require('express-fileupload');
 
 // default options

@@ -155,7 +155,7 @@ router.delete("/unit/:id", authorize(), property.deleteUnit);
 router.delete("/reserve/:id", authorize(), property.deleteReservedUnit);
 router.delete("/property/:id", authorize(), property.deleteProperty);
 router.delete("/prospect/:id", authorize(Role.Admin), property.deleteProspect);
-router.post("/refresh-token", authorize(), account.refreshToken);
+router.post("/refresh-token", account.refreshToken);
 router.post(
   "/revoke-token",
   authorize(),

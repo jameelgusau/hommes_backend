@@ -67,8 +67,9 @@ function registerAdmin(req, res, next) {
     .catch(next);
 }
 
-function refreshToken(req, res, next) {q
+function refreshToken(req, res, next) {
   const token = req.cookies.refreshToken;
+  console.log(req.cookies, "refreshed")
   const ipAddress = req.ip;
   services
     .refreshToken({ token, ipAddress })
@@ -202,9 +203,11 @@ function authenticateSchema(req, res, next) {
 
 function authenticate(req, res, next) {
   const { email, password } = req.body;
+  // console.log(req.body)
   const ipAddress = req.ip;
   services.authenticate({ email, password, ipAddress })
       .then(({ refreshToken, ...account }) => {
+        // console.log(refreshToken, "refreshed")
           setTokenCookie(res, refreshToken);
           res.json({
             meta:{
@@ -225,8 +228,6 @@ function addProfileImageSchema(req, res, next) {
   });
   validateRequest(req, next, schema);
 }
-
-
 
 async function addProfileImage(req, res, next) {
   services.addProfileImage(req.body, req.user.id)
@@ -278,6 +279,7 @@ function setTokenCookie(res, token) {
 function addUserSchema(req, res, next) {
   const schema = Joi.object({
       name: Joi.string().required(),
+      address: Joi.string().required(),
       phone: Joi.string().regex(/^\(*\+*[1-9]{0,3}\)*-*[1-9]{0,3}[-. /]*\(*[2-9]\d{2}\)*[-. /]*\d{3}[-. /]*\d{4} *e*x*t*\.* *\d{0,4}$/).messages({'string.pattern.base': `Phone number must have at least 10 digits.`}).required(),
       email: Joi.string().email().required(),
       role: Joi.string().valid(Role.Admin, Role.User).required()
