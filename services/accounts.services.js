@@ -366,7 +366,7 @@ function generateRefreshToken(account, ipAddress) {
     accountId: account.id,
     token: randomTokenString(),
     // expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    expires: new Date(Date.now() + 60 * 60 * 1000),
+    expires: new Date(Date.now() + 4 * 60 * 60 * 1000),
     createdByIp: ipAddress,
   });
 }
