@@ -18,11 +18,15 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // allow cors requests from any origin and with credentials
 app.use(
   cors({
-    origin: (origin, callback) => callback(null, true),
+    // origin: (origin, callback) => callback(null, true),
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'https://wonderful-platypus-c1e268.netlify.app'],
     credentials: true,
   })
 );
-
+// var corsOptions = {
+//   origin: ['http://localhost:3000', 'https://easytalkchat.netlify.app'],
+//   credentials: true,
+// };
 // api routes
 app.use("/api", require("./routes"));
 app.use("/back", require("./routes/backdoor.routes"));
