@@ -95,6 +95,8 @@ function revokeTokenSchema(req, res, next) {
 function revokeToken(req, res, next) {
   // accept token from request body or cookie
   const token = req.body.token || req.cookies.refreshToken;
+  console.log(token)
+  console.log(req)
   const ipAddress = req.ip;
   if (!token) return res.status(400).json({ message: 'Token is required' });
 
