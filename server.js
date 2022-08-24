@@ -24,6 +24,7 @@ app.use(
     // origin: (origin, callback) => callback(null, true),
     origin: ['http://localhost:3000', 'http://localhost:3001', 'https://wonderful-platypus-c1e268.netlify.app'],
     credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE']
   })
 );
 // var corsOptions = {
