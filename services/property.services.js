@@ -39,8 +39,7 @@ module.exports = {
   sendOffer,
   addPaymentImage,
   getPayments,
-  getPayment,
-  // invateToLogin
+  getPayment
 };
 // add property
 async function addProperty(params) {

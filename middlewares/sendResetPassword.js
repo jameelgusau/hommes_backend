@@ -9,9 +9,9 @@ async function sendPasswordResetEmail(account, origin) {
         const resetUrl = `${origin}/resetpassword/${account.resetToken}`;
         message = `<p>Please click the below link to reset your password, the link will be valid for 1 day:</p>
                    <p><a href="${resetUrl}" style="
-                   background-color: #0C2D40;
+                   background-color: #CC5518;
                    color: white;
-                   border: 2px solid #0C2D40;
+                   border: 2px solid #CC5518;
                    padding: 10px 20px;
                    text-align: center;
                    text-decoration: none;
@@ -21,7 +21,6 @@ async function sendPasswordResetEmail(account, origin) {
         message = `<p>Please use the below token to reset your password with the <code>/account/reset-password</code> api route:</p>
                    <p><code>${account.resetToken}</code></p>`;
     }
-
     await sendEmail({
         to: account.email,
         subject: 'Reset Password',
