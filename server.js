@@ -14,7 +14,10 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // default options
 // app.use(fileUpload());
-
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", true);
+  next();
+});
 // allow cors requests from any origin and with credentials
 app.use(
   cors({
