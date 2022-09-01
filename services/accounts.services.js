@@ -5,6 +5,8 @@ const { Op } = require("sequelize");
 const config = require("config.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 const randomTokenString = require("../middlewares/randomTokenString");
 const sendVerificationEmail = require("../middlewares/sendVerificationEmail");
 const sendPasswordResetEmail = require("../middlewares/sendResetPassword");
@@ -28,7 +30,7 @@ module.exports = {
   deleteEmailList,
   getEmailList,
   addProfileImage,
-  getProfileImage
+  getProfileImage,
 };
 
 async function registerAdmin(params, origin) {
@@ -46,7 +48,6 @@ async function registerAdmin(params, origin) {
   const isFirstAccount = (await db.Account.count()) === 0;
   account.role = isFirstAccount ? Role.Admin : Role.Prospect;
 
-
   account.verificationToken = randomTokenString();
 
   // hash password
@@ -54,13 +55,13 @@ async function registerAdmin(params, origin) {
 
   await account.save();
   // send email
-  if(!isFirstAccount){
-    const prospect =  new db.Prospect(params);
-    prospect.status = "Prospect"
-    prospect.accountId = account.id
+  if (!isFirstAccount) {
+    const prospect = new db.Prospect(params);
+    prospect.status = "Prospect";
+    prospect.accountId = account.id;
     await prospect.save();
-    }
-  
+  }
+
   await sendVerificationEmail(account, origin);
 }
 
@@ -169,27 +170,47 @@ async function updateAccount(params, id) {
 }
 
 async function addEmailList(params) {
-  
-  if (await db.EmailList.findOne({ where: {[Op.and]:[{ accountId: params.accountId}, {group: params.group}] }})) {
+  if (
+    await db.EmailList.findOne({
+      where: {
+        [Op.and]: [{ accountId: params.accountId }, { group: params.group }],
+      },
+    })
+  ) {
     throw "Account already exist";
   }
   const newEmail = await db.Account.findByPk(params.accountId);
 
   const email = new db.EmailList(params);
-  email.email = newEmail.email
-  await email.save()
+  email.email = newEmail.email;
+  await email.save();
 }
 
 async function addSignature(params, id) {
-  console.log(params, id);
-  const account = new db.Signature({
-    imageType: params.mimetype,
-    imageName: params.originalname,
-    imageData: params.buffer,
-    accountId: id,
+  console.log(params, id)
+  let account = await db.Signature.findOne({ where: { accountId: id } });
+  Object.keys(params).forEach((key) => {
+    // uuidv4()
+    const changeName = `${uuidv4()}_${params[key].name}`;
+    const filePath = path.join(__dirname, "../images", changeName);
+    params[key].mv(filePath, async (err) => {
+      if (err) throw err;
+      if (!account) {
+        account = new db.Signature({
+          fileName: [changeName],
+          accountId: id,
+        });
+      }else {
+        account.fileName = account?.fileName.push(changeName)
+      }
+      await account.save();
+    });
   });
-  console.log(account);
-  await account.save();
+  return {
+    status: 200,
+    message: Object.keys(params).toString(),
+  };
+  // await account.save();
 }
 
 async function getSignature(id) {
@@ -253,23 +274,19 @@ async function _delete(id) {
   await account.destroy();
 }
 
-
-
-
-async function addProfileImage({image}, id) {
+async function addProfileImage({ image }, id) {
   const account = await db.ProfileImage.findOne({ where: { accountId: id } });
   const params = {
     accountId: id,
-    image
-  }
+    image,
+  };
   if (account) {
-
     Object.assign(account, params);
     await account.save();
     return;
   }
   // console.log("image", image)
-  const newAcc = new db.ProfileImage(params)
+  const newAcc = new db.ProfileImage(params);
   await newAcc.save();
 }
 
@@ -281,16 +298,13 @@ async function getProfileImage(id) {
   return image;
 }
 
-
-
 async function deleteEmailList(id) {
   const account = await db.EmailList.findByPk(id);
   await account.destroy();
 }
 
-
 async function getAllUsers() {
-  console.log(db, 'db')
+  console.log(db, "db");
   const accounts = await db.Account.findAll({
     where: {
       role: {
@@ -313,13 +327,14 @@ async function getSign(id) {
   return account;
 }
 
-
 async function getEmailList(group) {
-  const account = await db.EmailList.findAll({ where: { group: group } , include:[{ model: db.Account, required: true}]});
+  const account = await db.EmailList.findAll({
+    where: { group: group },
+    include: [{ model: db.Account, required: true }],
+  });
   if (!account) throw "Empty Users";
   return account;
 }
-
 
 async function refreshToken({ token, ipAddress }) {
   const refreshToken = await getRefreshToken(token);
@@ -397,9 +412,9 @@ function basicDetails(account) {
 }
 
 async function getRefreshToken(token) {
-  console.log(token, "token")
+  console.log(token, "token");
   const refreshToken = await db.RefreshToken.findOne({ where: { token } });
-  console.log(refreshToken, "refreshToken")
+  console.log(refreshToken, "refreshToken");
   if (!refreshToken || !refreshToken.isActive) throw "Invalid token";
   return refreshToken;
 }

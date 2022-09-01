@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
+const fileUpload = require("express-fileupload");
+// const multer = require("multer");
 // const upload = multer({ dest: 'uploads/' })
+const filesPayloadExists = require('../middlewares/filesPayloadExists');
+const fileSizeLimiter = require('../middlewares/fileSizeLimiter');
+const fileExtLimiter = require('../middlewares/fileExtLimiter');
 
 const account = require("../controllers/accounts.controllers");
 const property = require("../controllers/property.controllers");
@@ -9,10 +13,10 @@ const payment = require("../controllers/paymentPlans.controllers");
 const authorize = require("../auth/authorize");
 const Role = require("../helpers/roles");
 
-const upload = multer({
-  dest: "uploads/",
-  storage: multer.memoryStorage(),
-});
+// const upload = multer({
+//   dest: "uploads/",
+//   storage: multer.memoryStorage(),
+// });
 
 router.get("/prospect", authorize(Role.Admin), property.getProspects);
 router.get("/get-propertyimage/:id/:floor",
@@ -192,13 +196,16 @@ router.put(
 );
 
 router.post(
-  "/signature",
+  "/upload",
   authorize(),
-  upload.single("image"),
+  fileUpload({ createParentPath: true}),
+  filesPayloadExists,
+  fileExtLimiter(['.png', '.jpg', '.jpeg', '.PNG',]),
+  fileSizeLimiter,
   account.addSignature
 );
 
-
+ 
 router.post(
   "/image",
   authorize(),

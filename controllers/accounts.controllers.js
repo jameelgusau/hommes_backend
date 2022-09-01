@@ -316,14 +316,13 @@ function addSignatureSchema(req, res, next) {
 
 async function addSignature(req, res, next) {
   // console.log(req.files.image)
-  console.log(req.file)
-  if (!req.file || Object.keys(req.file).length === 0) {
-    return res.status(400).send('No file were uploaded.');
-  }
-  // const buffer = await getStream(req.file.stream)
+  console.log(req.user)
+//   if (!req.file || Object.keys(req.file).length === 0) {
+//     return res.status(400).send('No file were uploaded.');
+//   }
+//   // const buffer = await getStream(req.file.stream)
 
-  const params =  {}
-  services.addSignature(req.file, req.user.id)
+  services.addSignature(req.files, req.user.id)
   .then(() =>
   res.json({
     meta:{
